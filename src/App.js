@@ -12,6 +12,7 @@ import Home from "./pages/Home";
 import { useDispatch } from "react-redux";
 import { auth } from "./firebase";
 import userEvent from "@testing-library/user-event";
+import { LOGGED_IN_USER } from "./actionTypes/userActionTypes";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -23,7 +24,7 @@ const App = () => {
         const idTokenResult = await user.getIdTokenResult();
 
         dispatch({
-          type: "LOGGED_IN_USER",
+          type: LOGGED_IN_USER,
           payload: { email: user.email, token: idTokenResult.token },
         });
       }
