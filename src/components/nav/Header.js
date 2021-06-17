@@ -9,7 +9,7 @@ import {
 } from "@ant-design/icons";
 import { Link, useHistory } from "react-router-dom";
 import firebase from "firebase";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { LOGGED_OUT } from "../../actionTypes/userActionTypes";
 
 const { SubMenu } = Menu;
@@ -17,6 +17,7 @@ const { SubMenu } = Menu;
 const Header = () => {
   const [current, setCurrent] = useState("");
   let dispatch = useDispatch();
+  let { user } = useSelector((state) => ({ ...state }));
   let history = useHistory();
 
   const handleClick = (event) => {
@@ -38,23 +39,33 @@ const Header = () => {
       <Menu.Item key="home" icon={<AppstoreOutlined />}>
         <Link to="/">Home</Link>
       </Menu.Item>
-      <Menu.Item
-        key="register"
-        icon={<UserAddOutlined />}
-        className="float-right"
-      >
-        <Link to="/register">Register</Link>
-      </Menu.Item>
-      <Menu.Item key="login" icon={<UserOutlined />} className="float-right">
-        <Link to="/login">Login</Link>
-      </Menu.Item>
-      <SubMenu key="SubMenu" icon={<SettingOutlined />} title="Username">
-        <Menu.Item key="setting:1">Option 1</Menu.Item>
-        <Menu.Item key="setting:2">Option 2</Menu.Item>
-        <Menu.Item icon={<LogoutOutlined />} onClick={logout}>
-          Logout
+      {!user && (
+        <Menu.Item
+          key="register"
+          icon={<UserAddOutlined />}
+          className="float-right"
+        >
+          <Link to="/register">Register</Link>
         </Menu.Item>
-      </SubMenu>
+      )}
+      {!user && (
+        <Menu.Item key="login" icon={<UserOutlined />} className="float-right">
+          <Link to="/login">Login</Link>
+        </Menu.Item>
+      )}
+      {user && (
+        <SubMenu
+          key="SubMenu"
+          icon={<SettingOutlined />}
+          title={user.email.split("@")[0]}
+        >
+          <Menu.Item key="setting:1">Option 1</Menu.Item>
+          <Menu.Item key="setting:2">Option 2</Menu.Item>
+          <Menu.Item icon={<LogoutOutlined />} onClick={logout}>
+            Logout
+          </Menu.Item>
+        </SubMenu>
+      )}
     </Menu>
   );
 };

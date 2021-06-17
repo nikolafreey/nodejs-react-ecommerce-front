@@ -13,6 +13,7 @@ import { useDispatch } from "react-redux";
 import { auth } from "./firebase";
 import userEvent from "@testing-library/user-event";
 import { LOGGED_IN_USER } from "./actionTypes/userActionTypes";
+import ForgotPassword from "./pages/auth/ForgotPassword";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -43,6 +44,7 @@ const App = () => {
         <Route exact path="/login" component={Login} />
         <Route exact path="/register" component={Register} />
         <Route exact path="/register/complete" component={RegisterComplete} />
+        <Route exact path="/forgot/password" component={ForgotPassword} />
       </Switch>
     </>
   );
