@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { auth } from "../../firebase";
+import { useDispatch, useSelector } from "react-redux";
+import { LOGGED_IN_USER } from "../../actionTypes/userActionTypes";
+import axios from "axios";
+import { createOrUpdateUser } from "../../services/authService";
 
 const RegisterComplete = ({ history }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { user } = useSelector((state) => ({ ...state }));
+
+  let dispatch = useDispatch();
 
   useEffect(() => {
     if (user && user.token) history.push("/");
@@ -41,6 +46,20 @@ const RegisterComplete = ({ history }) => {
         await user.updatePassword(password);
         const idTokenResult = await user.getIdTokenResult();
 
+        createOrUpdateUser(idTokenResult.token)
+          .then((res) => {
+            dispatch({
+              type: LOGGED_IN_USER,
+              payload: {
+                email: res.data.email,
+                token: idTokenResult.token,
+                name: res.data.name,
+                role: res.data.role,
+                _id: res.data._id,
+              },
+            });
+          })
+          .catch((e) => console.log(e));
         history.push("/");
       }
     } catch (e) {

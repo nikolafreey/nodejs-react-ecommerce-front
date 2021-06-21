@@ -6,6 +6,8 @@ import { GoogleOutlined, MailOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { LOGGED_IN_USER } from "../../actionTypes/userActionTypes";
 import { Link } from "react-router-dom";
+import axios from "axios";
+import { createOrUpdateUser } from "../../services/authService";
 
 const Login = ({ history }) => {
   const [email, setEmail] = useState("nikolav54@gmail.com");
@@ -26,10 +28,20 @@ const Login = ({ history }) => {
       const { user } = await auth.signInWithEmailAndPassword(email, password);
       const idTokenResult = await user.getIdTokenResult();
 
-      dispatch({
-        type: LOGGED_IN_USER,
-        payload: { email: user.email, token: idTokenResult.token },
-      });
+      createOrUpdateUser(idTokenResult.token)
+        .then((res) => {
+          dispatch({
+            type: LOGGED_IN_USER,
+            payload: {
+              email: res.data.email,
+              token: idTokenResult.token,
+              name: res.data.name,
+              role: res.data.role,
+              _id: res.data._id,
+            },
+          });
+        })
+        .catch((e) => console.log(e));
 
       history.push("/");
     } catch (error) {
@@ -45,10 +57,20 @@ const Login = ({ history }) => {
       .then(async (result) => {
         const { user } = result;
         const idTokenResult = await user.getIdTokenResult();
-        dispatch({
-          type: LOGGED_IN_USER,
-          payload: { email: user.email, token: idTokenResult.token },
-        });
+        createOrUpdateUser(idTokenResult.token)
+          .then((res) => {
+            dispatch({
+              type: LOGGED_IN_USER,
+              payload: {
+                email: res.data.email,
+                token: idTokenResult.token,
+                name: res.data.name,
+                role: res.data.role,
+                _id: res.data._id,
+              },
+            });
+          })
+          .catch((e) => console.log(e));
         history.push("/");
       })
       .catch((error) => {
