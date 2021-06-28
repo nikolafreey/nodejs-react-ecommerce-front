@@ -14,6 +14,9 @@ import { auth } from "./firebase";
 import userEvent from "@testing-library/user-event";
 import { LOGGED_IN_USER } from "./actionTypes/userActionTypes";
 import ForgotPassword from "./pages/auth/ForgotPassword";
+import { currentUser } from "./services/authService";
+import History from "./pages/user/History";
+import UserRoute from "./components/routes/UserRoute";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -24,10 +27,20 @@ const App = () => {
       if (user) {
         const idTokenResult = await user.getIdTokenResult();
 
-        dispatch({
-          type: LOGGED_IN_USER,
-          payload: { email: user.email, token: idTokenResult.token },
-        });
+        currentUser(idTokenResult.token)
+          .then((res) => {
+            dispatch({
+              type: LOGGED_IN_USER,
+              payload: {
+                email: res.data.email,
+                token: idTokenResult.token,
+                name: res.data.name,
+                role: res.data.role,
+                _id: res.data._id,
+              },
+            });
+          })
+          .catch((e) => console.log(e));
       }
     });
 
@@ -45,6 +58,7 @@ const App = () => {
         <Route exact path="/register" component={Register} />
         <Route exact path="/register/complete" component={RegisterComplete} />
         <Route exact path="/forgot/password" component={ForgotPassword} />
+        <UserRoute exact path="/user/history" component={History} />
       </Switch>
     </>
   );
