@@ -6,7 +6,6 @@ import { GoogleOutlined, MailOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { LOGGED_IN_USER } from "../../actionTypes/userActionTypes";
 import { Link } from "react-router-dom";
-import axios from "axios";
 import { createOrUpdateUser } from "../../services/authService";
 
 const Login = ({ history }) => {
@@ -25,7 +24,7 @@ const Login = ({ history }) => {
 
   useEffect(() => {
     if (user && user.token) history.push("/");
-  }, [user]);
+  }, [user, history]);
 
   let dispatch = useDispatch();
 

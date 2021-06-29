@@ -3,7 +3,6 @@ import { toast } from "react-toastify";
 import { auth } from "../../firebase";
 import { useDispatch, useSelector } from "react-redux";
 import { LOGGED_IN_USER } from "../../actionTypes/userActionTypes";
-import axios from "axios";
 import { createOrUpdateUser } from "../../services/authService";
 
 const RegisterComplete = ({ history }) => {
@@ -15,7 +14,7 @@ const RegisterComplete = ({ history }) => {
 
   useEffect(() => {
     if (user && user.token) history.push("/");
-  }, [user]);
+  }, [user, history]);
 
   useEffect(() => {
     setEmail(window.localStorage.getItem("emailForRegistration"));

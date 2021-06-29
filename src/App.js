@@ -11,14 +11,15 @@ import Home from "./pages/Home";
 
 import { useDispatch } from "react-redux";
 import { auth } from "./firebase";
-import userEvent from "@testing-library/user-event";
 import { LOGGED_IN_USER } from "./actionTypes/userActionTypes";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import { currentUser } from "./services/authService";
 import History from "./pages/user/History";
 import UserRoute from "./components/routes/UserRoute";
+import AdminRoute from "./components/routes/AdminRoute";
 import Password from "./pages/user/Password";
 import Wishlist from "./pages/user/WIshlist";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -48,7 +49,7 @@ const App = () => {
 
     //cleanup
     return () => unsubscribe();
-  }, []);
+  }, [dispatch]);
 
   return (
     <>
@@ -63,6 +64,7 @@ const App = () => {
         <UserRoute exact path="/user/history" component={History} />
         <UserRoute exact path="/user/password" component={Password} />
         <UserRoute exact path="/user/wishlist" component={Wishlist} />
+        <AdminRoute exact path="/admin/dashboard" component={AdminDashboard} />
       </Switch>
     </>
   );
