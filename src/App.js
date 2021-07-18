@@ -25,6 +25,8 @@ import CategoryUpdate from "./pages/admin/category/CategoryUpdate";
 import SubCategoryCreate from "./pages/admin/subCategory/SubCategoryCreate";
 import SubCategoryUpdate from "./pages/admin/subCategory/SubCategoryUpdate";
 import ProductCreate from "./pages/admin/product/ProductCreate";
+import AllProducts from "./pages/admin/product/AllProducts";
+import ProductUpdate from "./pages/admin/product/ProductUpdate";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -71,6 +73,12 @@ const App = () => {
         <UserRoute exact path="/user/wishlist" component={Wishlist} />
         <AdminRoute exact path="/admin/dashboard" component={AdminDashboard} />
         <AdminRoute exact path="/admin/category" component={CategoryCreate} />
+        <AdminRoute exact path="/admin/products" component={AllProducts} />
+        <AdminRoute
+          exact
+          path="/admin/product/:slug"
+          component={ProductUpdate}
+        />
         <AdminRoute
           exact
           path="/admin/category/:slug"
