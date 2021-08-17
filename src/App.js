@@ -28,6 +28,8 @@ import ProductCreate from "./pages/admin/product/ProductCreate";
 import AllProducts from "./pages/admin/product/AllProducts";
 import ProductUpdate from "./pages/admin/product/ProductUpdate";
 import Product from "./pages/Product";
+import CategoryHome from "./pages/category/CategoryHome";
+import SubCategoryHome from "./pages/subcategory/SubCategoryHome";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -66,13 +68,17 @@ const App = () => {
       <Switch>
         <Route exact path="/" component={Home} />
         <Route exact path="/product/:slug" component={Product} />
+        <Route exact path="/category/:slug" component={CategoryHome} />
+        <Route exact path="/subcategory/:slug" component={SubCategoryHome} />
         <Route exact path="/login" component={Login} />
         <Route exact path="/register" component={Register} />
         <Route exact path="/register/complete" component={RegisterComplete} />
         <Route exact path="/forgot/password" component={ForgotPassword} />
+
         <UserRoute exact path="/user/history" component={History} />
         <UserRoute exact path="/user/password" component={Password} />
         <UserRoute exact path="/user/wishlist" component={Wishlist} />
+
         <AdminRoute exact path="/admin/dashboard" component={AdminDashboard} />
         <AdminRoute exact path="/admin/category" component={CategoryCreate} />
         <AdminRoute exact path="/admin/products" component={AllProducts} />
