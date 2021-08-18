@@ -5,12 +5,15 @@ import {
   getProductsByCount,
 } from "../services/productService";
 import ProductCard from "../components/cards/ProductCard";
-import { Menu, Slider } from "antd";
-import { DollarOutlined } from "@ant-design/icons";
+import { Menu, Slider, Checkbox } from "antd";
+import { DollarOutlined, DownSquareOutlined } from "@ant-design/icons";
 import { SEARCH_QUERY } from "../actionTypes/searchActionTypes";
+import { getCategories } from "../services/categoryService";
 
 const Shop = () => {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [categoryIds, setCategoryIds] = useState([]);
   const [price, setPrice] = useState([0, 0]);
   const [loading, setLoading] = useState(false);
   const [ok, setOk] = useState(false);
@@ -20,24 +23,23 @@ const Shop = () => {
   const { text } = search;
   const { SubMenu, ItemGroup } = Menu;
 
-  const loadAllProducts = () => {
-    setLoading(true);
-    getProductsByCount(12).then((res) => {
-      setLoading(false);
+  const fetchProducts = (arg) => {
+    fetchProductsByFilter(arg).then((res) => {
       setProducts(res.data);
     });
   };
 
-  const fetchProducts = (arg) => {
-    setLoading(true);
-    fetchProductsByFilter(arg).then((res) => {
+  const loadAllProducts = () => {
+    // setLoading(true);
+    getProductsByCount(12).then((res) => {
       setProducts(res.data);
-      setLoading(false);
+      //   setLoading(false);
     });
   };
 
   const handleSlider = (value) => {
     dispatch({ type: SEARCH_QUERY, payload: { text: "" } });
+    setCategoryIds([]);
     setPrice(value);
     setTimeout(() => {
       //When we interact with slider the value of price changes a lot and it would put unneccessary load on backend server.
@@ -45,9 +47,38 @@ const Shop = () => {
     }, 300);
   };
 
-  useEffect(() => {
-    loadAllProducts();
-  }, []);
+  const handleCheck = (e) => {
+    dispatch({ type: SEARCH_QUERY, payload: { text: "" } });
+    setPrice([0, 0]);
+    let inTheState = [...categoryIds];
+    let justChecked = e.target.value;
+    let foundInTheState = inTheState.indexOf(justChecked);
+
+    if (foundInTheState === -1) {
+      inTheState.push(justChecked);
+    } else {
+      inTheState.splice(foundInTheState, 1);
+    }
+
+    setCategoryIds(inTheState);
+    fetchProducts({ category: inTheState });
+  };
+
+  const showCategories = () =>
+    categories.map((c) => (
+      <div key={c._id}>
+        <Checkbox
+          className="pb-2 pl-4 pr-4"
+          value={c._id}
+          name="category"
+          onChange={handleCheck}
+          checked={categoryIds.includes(c._id)}
+        >
+          {c.name}
+        </Checkbox>
+        <br />
+      </div>
+    ));
 
   useEffect(() => {
     const delayed = setTimeout(() => {
@@ -61,11 +92,17 @@ const Shop = () => {
     fetchProducts({ price });
   }, [ok]); //Value of ok changes when we interact with the slider thanks to handleSlider function
 
+  useEffect(() => {
+    loadAllProducts();
+    getCategories().then((res) => setCategories(res.data));
+  }, []);
+
   return (
     <div className="container-fluid">
       <div className="row">
         <div className="col-md-3">
           <h4 className="text-center">Search / Filter</h4>
+          Load: {loading.toString()}
           <Menu mode="inline" defaultOpenKeys={["1", "2"]}>
             <SubMenu
               key="1"
@@ -85,6 +122,16 @@ const Shop = () => {
                   onChange={handleSlider}
                 />
               </div>
+            </SubMenu>
+            <SubMenu
+              key="2"
+              title={
+                <span className="h6">
+                  <DownSquareOutlined /> Categories
+                </span>
+              }
+            >
+              <div>{showCategories()}</div>
             </SubMenu>
           </Menu>
         </div>
