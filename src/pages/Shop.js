@@ -5,7 +5,7 @@ import {
   getProductsByCount,
 } from "../services/productService";
 import ProductCard from "../components/cards/ProductCard";
-import { Menu, Slider, Checkbox } from "antd";
+import { Menu, Slider, Checkbox, Radio } from "antd";
 import {
   DollarOutlined,
   DownSquareOutlined,
@@ -20,6 +20,23 @@ const Shop = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
+  const [brand, setBrand] = useState("");
+  const [color, setColor] = useState("");
+  const [brands, setBrands] = useState([
+    "Apple",
+    "Samsung",
+    "Microsoft",
+    "Lenovo",
+    "Asus",
+  ]);
+  const [colors, setColors] = useState([
+    "Black",
+    "Brown",
+    "Silver",
+    "White",
+    "Blue",
+  ]);
+  const [shipping, setShipping] = useState(["Yes", "No "]);
   const [categoryIds, setCategoryIds] = useState([]);
   const [price, setPrice] = useState([0, 0]);
   const [loading, setLoading] = useState(false);
@@ -52,6 +69,10 @@ const Shop = () => {
     setPrice(value);
     setStar();
     setSubCategory();
+    setBrand("");
+    setColor("");
+    setShipping("");
+
     setTimeout(() => {
       //When we interact with slider the value of price changes a lot and it would put unneccessary load on backend server.
       setOk(!ok); //Therefore we use setTimeout to delay the reqnest by 300ms and effectively debounce and throttle the request towards the API server
@@ -63,6 +84,10 @@ const Shop = () => {
     setPrice([0, 0]);
     setStar();
     setSubCategory();
+    setBrand("");
+    setColor("");
+    setShipping("");
+
     let inTheState = [...categoryIds];
     let justChecked = e.target.value;
     let foundInTheState = inTheState.indexOf(justChecked);
@@ -100,6 +125,9 @@ const Shop = () => {
     setCategoryIds([]);
     setStar();
     setSubCategory();
+    setBrand("");
+    setColor("");
+    setShipping("");
 
     fetchProducts({ subCategory: sub });
   };
@@ -120,8 +148,11 @@ const Shop = () => {
     dispatch({ type: SEARCH_QUERY, payload: { text: "" } });
     setPrice([0, 0]);
     setCategoryIds([]);
-    setStar(num);
     setSubCategory();
+    setBrand("");
+    setColor("");
+    setShipping("");
+    setStar(num);
 
     fetchProducts({ stars: num });
   };
@@ -135,6 +166,93 @@ const Shop = () => {
       <Star starClick={handleStarClick} numberOfStars={1} />
     </div>
   );
+
+  const showBrands = () =>
+    brands.map((b) => (
+      <Radio
+        value={b}
+        name={b}
+        checked={b === brand}
+        onChange={handleBrand}
+        className="pb-1 pl-1 pr-4"
+      >
+        {" "}
+        {b}
+      </Radio>
+    ));
+
+  const handleBrand = (e) => {
+    dispatch({ type: SEARCH_QUERY, payload: { text: "" } });
+    setPrice([0, 0]);
+    setCategoryIds([]);
+    setStar();
+    setSubCategory();
+    setColor("");
+    setShipping("");
+    setBrand(e.target.value);
+
+    fetchProducts({ brand: e.target.value });
+  };
+
+  const showColors = () =>
+    colors.map((c) => (
+      <Radio
+        value={c}
+        name={c}
+        checked={c === color}
+        onChange={handleColor}
+        className="pb-1 pl-1 pr-4"
+      >
+        {c}
+      </Radio>
+    ));
+
+  const handleColor = (e) => {
+    dispatch({ type: SEARCH_QUERY, payload: { text: "" } });
+    setPrice([0, 0]);
+    setCategoryIds([]);
+    setStar();
+    setSubCategory();
+    setBrand("");
+    setShipping("");
+    setColor(e.target.value);
+
+    fetchProducts({ color: e.target.value });
+  };
+
+  const showShipping = () => (
+    <>
+      <Checkbox
+        className="pb-2 pl-4 pr-4"
+        onChange={handleShipping}
+        value="Yes"
+        checked={shipping.includes("Yes")}
+      >
+        Yes
+      </Checkbox>
+      <Checkbox
+        className="pb-2 pl-4 pr-4"
+        onChange={handleShipping}
+        value="No"
+        checked={shipping.includes("No")}
+      >
+        No
+      </Checkbox>
+    </>
+  );
+
+  const handleShipping = (e) => {
+    dispatch({ type: SEARCH_QUERY, payload: { text: "" } });
+    setPrice([0, 0]);
+    setCategoryIds([]);
+    setStar();
+    setSubCategory();
+    setBrand("");
+    setColor("");
+    setShipping(e.target.value);
+
+    fetchProducts({ shipping: e.target.value });
+  };
 
   useEffect(() => {
     const delayed = setTimeout(() => {
@@ -208,6 +326,36 @@ const Shop = () => {
               }
             >
               <div className="pl-4 pr-4">{showSubCategories()}</div>
+            </SubMenu>
+            <SubMenu
+              key="5"
+              title={
+                <span className="h6">
+                  <DownSquareOutlined /> Brands
+                </span>
+              }
+            >
+              <div className="row pl-3 ml-1">{showBrands()}</div>
+            </SubMenu>
+            <SubMenu
+              key="6"
+              title={
+                <span className="h6">
+                  <DownSquareOutlined /> Colors
+                </span>
+              }
+            >
+              <div className="row pl-3 ml-1">{showColors()}</div>
+            </SubMenu>
+            <SubMenu
+              key="7"
+              title={
+                <span className="h6">
+                  <DownSquareOutlined /> Shipping
+                </span>
+              }
+            >
+              <div className="pr-5">{showShipping()}</div>
             </SubMenu>
           </Menu>
         </div>
