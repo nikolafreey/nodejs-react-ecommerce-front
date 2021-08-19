@@ -6,17 +6,26 @@ import {
 } from "../services/productService";
 import ProductCard from "../components/cards/ProductCard";
 import { Menu, Slider, Checkbox } from "antd";
-import { DollarOutlined, DownSquareOutlined } from "@ant-design/icons";
+import {
+  DollarOutlined,
+  DownSquareOutlined,
+  StarOutlined,
+} from "@ant-design/icons";
 import { SEARCH_QUERY } from "../actionTypes/searchActionTypes";
 import { getCategories } from "../services/categoryService";
+import Star from "../components/forms/Star";
+import { getSubCategories } from "../services/subCategoryService";
 
 const Shop = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
   const [categoryIds, setCategoryIds] = useState([]);
   const [price, setPrice] = useState([0, 0]);
   const [loading, setLoading] = useState(false);
   const [ok, setOk] = useState(false);
+  const [star, setStar] = useState();
+  const [subCategory, setSubCategory] = useState();
 
   const dispatch = useDispatch();
   const { search } = useSelector((state) => ({ ...state }));
@@ -41,6 +50,8 @@ const Shop = () => {
     dispatch({ type: SEARCH_QUERY, payload: { text: "" } });
     setCategoryIds([]);
     setPrice(value);
+    setStar();
+    setSubCategory();
     setTimeout(() => {
       //When we interact with slider the value of price changes a lot and it would put unneccessary load on backend server.
       setOk(!ok); //Therefore we use setTimeout to delay the reqnest by 300ms and effectively debounce and throttle the request towards the API server
@@ -50,6 +61,8 @@ const Shop = () => {
   const handleCheck = (e) => {
     dispatch({ type: SEARCH_QUERY, payload: { text: "" } });
     setPrice([0, 0]);
+    setStar();
+    setSubCategory();
     let inTheState = [...categoryIds];
     let justChecked = e.target.value;
     let foundInTheState = inTheState.indexOf(justChecked);
@@ -80,6 +93,49 @@ const Shop = () => {
       </div>
     ));
 
+  const handleSubCategory = (sub) => {
+    setSubCategory(sub);
+    dispatch({ type: SEARCH_QUERY, payload: { text: "" } });
+    setPrice([0, 0]);
+    setCategoryIds([]);
+    setStar();
+    setSubCategory();
+
+    fetchProducts({ subCategory: sub });
+  };
+
+  const showSubCategories = () =>
+    subCategories.map((sub) => (
+      <div
+        className="p-1 m-1 badge badge-secondary"
+        key={sub._id}
+        onClick={() => handleSubCategory(sub)}
+        style={{ cursor: "pointer" }}
+      >
+        {sub.name}
+      </div>
+    ));
+
+  const handleStarClick = (num) => {
+    dispatch({ type: SEARCH_QUERY, payload: { text: "" } });
+    setPrice([0, 0]);
+    setCategoryIds([]);
+    setStar(num);
+    setSubCategory();
+
+    fetchProducts({ stars: num });
+  };
+
+  const showStars = () => (
+    <div className="pr-4 pl-4 pb-2">
+      <Star starClick={handleStarClick} numberOfStars={5} />
+      <Star starClick={handleStarClick} numberOfStars={4} />
+      <Star starClick={handleStarClick} numberOfStars={3} />
+      <Star starClick={handleStarClick} numberOfStars={2} />
+      <Star starClick={handleStarClick} numberOfStars={1} />
+    </div>
+  );
+
   useEffect(() => {
     const delayed = setTimeout(() => {
       fetchProducts({ query: text });
@@ -95,6 +151,7 @@ const Shop = () => {
   useEffect(() => {
     loadAllProducts();
     getCategories().then((res) => setCategories(res.data));
+    getSubCategories().then((res) => setSubCategories(res.data));
   }, []);
 
   return (
@@ -102,8 +159,7 @@ const Shop = () => {
       <div className="row">
         <div className="col-md-3">
           <h4 className="text-center">Search / Filter</h4>
-          Load: {loading.toString()}
-          <Menu mode="inline" defaultOpenKeys={["1", "2"]}>
+          <Menu mode="inline" defaultOpenKeys={["1", "2", "3"]}>
             <SubMenu
               key="1"
               title={
@@ -132,6 +188,26 @@ const Shop = () => {
               }
             >
               <div>{showCategories()}</div>
+            </SubMenu>
+            <SubMenu
+              key="3"
+              title={
+                <span className="h6">
+                  <StarOutlined /> Rating
+                </span>
+              }
+            >
+              <div>{showStars()}</div>
+            </SubMenu>
+            <SubMenu
+              key="4"
+              title={
+                <span className="h6">
+                  <DownSquareOutlined /> Sub Categories
+                </span>
+              }
+            >
+              <div className="pl-4 pr-4">{showSubCategories()}</div>
             </SubMenu>
           </Menu>
         </div>
