@@ -256,6 +256,7 @@ const Shop = () => {
 
   useEffect(() => {
     const delayed = setTimeout(() => {
+      if (!text) loadAllProducts();
       fetchProducts({ query: text });
     }, 300);
 

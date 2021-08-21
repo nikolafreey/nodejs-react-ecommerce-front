@@ -33,6 +33,7 @@ import SubCategoryHome from "./pages/subcategory/SubCategoryHome";
 import Shop from "./pages/Shop";
 import Cart from "./pages/Cart";
 import SideDrawer from "./components/modals/SideDrawer";
+import Checkout from "./pages/Checkout";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -74,6 +75,7 @@ const App = () => {
         <Route exact path="/shop" component={Shop} />
         <Route exact path="/product/:slug" component={Product} />
         <Route exact path="/cart" component={Cart} />
+        <Route exact path="/checkout" component={Checkout} />
         <Route exact path="/" component={SideDrawer} />
         <Route exact path="/category/:slug" component={CategoryHome} />
         <Route exact path="/subcategory/:slug" component={SubCategoryHome} />
