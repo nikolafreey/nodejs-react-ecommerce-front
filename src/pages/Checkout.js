@@ -11,12 +11,17 @@ import {
 } from "../services/userService";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import { applyCoupon } from "../services/couponService";
+import { COUPON_APPLIED } from "../actionTypes/couponActionTypes";
 
-const Checkout = () => {
+const Checkout = ({ history }) => {
   const [products, setProducts] = useState([]);
   const [total, setTotal] = useState(0);
+  const [totalAfterDiscount, setTotalAfterDiscount] = useState(0);
   const [address, setAddress] = useState("");
   const [addressSaved, setAddressSaved] = useState(false);
+  const [discountError, setDiscountError] = useState("");
+  const [coupon, setCoupon] = useState("");
 
   const dispatch = useDispatch();
   const { user } = useSelector((state) => ({ ...state }));
@@ -42,6 +47,8 @@ const Checkout = () => {
     emptyUserCart(user.token).then((res) => {
       setProducts([]);
       setTotal(0);
+      setTotalAfterDiscount(0);
+      setCoupon("");
       toast.success("Cart is empty, Continue shopping.");
     });
   };
@@ -55,38 +62,89 @@ const Checkout = () => {
     });
   };
 
+  const showAddress = () => (
+    <>
+      <ReactQuill theme="snow" value={address} onChange={setAddress} />
+      <button className="btn btn-primary mt-2" onClick={saveAddressToDb}>
+        Save
+      </button>
+    </>
+  );
+
+  const showProductSummary = () => (
+    <>
+      <h4>Order Summary</h4>
+      <hr />
+      <p>Products {products.length}</p>
+      <hr />
+      {products.map((p, i) => (
+        <div key={i}>
+          <p>
+            {p.product.title} ({p.color}) x {p.count} = ${p.price * p.count})
+          </p>
+        </div>
+      ))}
+      <hr />
+      <p>Cart Total: ${total}</p>
+      {totalAfterDiscount > 0 && (
+        <p className="bg-success p-2">
+          Discounted Price: ${totalAfterDiscount}
+        </p>
+      )}
+    </>
+  );
+
+  const applyDiscountCoupon = () => {
+    applyCoupon(coupon, user.token).then((res) => {
+      if (res.data) {
+        setTotalAfterDiscount(res.data);
+        //update the Redux state
+        dispatch({ type: COUPON_APPLIED, payload: true });
+      }
+      if (res.data.err) {
+        setDiscountError(res.data.err);
+        //update redux state
+        dispatch({ type: COUPON_APPLIED, payload: false });
+      }
+    });
+  };
+
+  const showApplyCoupon = () => (
+    <>
+      <input
+        type="text"
+        className="form-control"
+        onChange={(e) => {
+          setCoupon(e.target.value);
+          setDiscountError("");
+        }}
+      />
+      <button onClick={applyDiscountCoupon} className="btn btn-primary mt-2">
+        Apply
+      </button>
+    </>
+  );
+
   return (
     <div className="row">
       <div className="col-md-6">
         <h4>Delivery Address</h4>
         <br />
         <br />
-        <ReactQuill theme="snow" value={address} onChange={setAddress} />
-        <button className="btn btn-primary mt-2" onClick={saveAddressToDb}>
-          Save
-        </button>
+        {showAddress()}
         <hr />
         <h4>Got Coupon?</h4>
         <br />
-        coupon input and apply button for coupon
+        {showApplyCoupon()}
+        <br />
+        {discountError && <p className="bg-danger p-2">{discountError}</p>}
       </div>
       <div className="col-md-6">
-        <h4>Order Summary</h4>
-        <hr />
-        <p>Products {products.length}</p>
-        <hr />
-        {products.map((p, i) => (
-          <div key={i}>
-            <p>
-              {p.product.title} ({p.color}) x {p.count} = ${p.price * p.count})
-            </p>
-          </div>
-        ))}
-        <hr />
-        <p>Cart Total: ${total}</p>
+        {showProductSummary()}
         <div className="row">
           <div className="col-md-6">
             <button
+              onClick={() => history.push("/payment")}
               className="btn btn-primary"
               disabled={!addressSaved || !products.length}
             >
