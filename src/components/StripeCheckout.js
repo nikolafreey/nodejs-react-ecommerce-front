@@ -1,12 +1,15 @@
-import React from "react";
-import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
-import { useSelector, useDispatch } from "react-redux";
-import { createPaymentIntent } from "../services/stripeService";
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Card } from "antd";
-import placeholder from "../images/Screenshot_111.png";
 import { CheckOutlined, DollarOutlined } from "@ant-design/icons";
+import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
+import { Card } from "antd";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+import placeholder from "../images/Screenshot_111.png";
+import { createPaymentIntent } from "../services/stripeService";
+import { useMemo } from "react";
+import { createOrder, emptyUserCart } from "../services/userService";
+import { ADD_TO_CART } from "../actionTypes/cartActionTypes";
+import { COUPON_APPLIED } from "../actionTypes/couponActionTypes";
 
 const StripeCheckout = ({ history }) => {
   const dispatch = useDispatch();
@@ -71,6 +74,16 @@ const StripeCheckout = ({ history }) => {
     } else {
       //here you get the result after successful payment
       //create order and save in database for admin to process and empty user cart from Redux and localStorage
+      createOrder(payload, user.token).then((res) => {
+        if (res.data.ok) {
+          //empty cart from localStorage and Redux and from Database and reset coupon to false in redux store
+          if (typeof window !== "undefined") localStorage.removeItem("cart");
+          dispatch({ type: ADD_TO_CART, payload: [] });
+          dispatch({ type: COUPON_APPLIED, payload: false });
+          emptyUserCart(user.token);
+        }
+      });
+
       console.log(JSON.stringify(payload, null, 4));
       setError(null);
       setProcessing(false);
@@ -89,7 +102,7 @@ const StripeCheckout = ({ history }) => {
     <>
       {!succeeded && (
         <div>
-          {coupon && !totalAfterDiscount ? (
+          {coupon && totalAfterDiscount ? (
             <p className="alert alert-success">{`Total After Discount: $${totalAfterDiscount}`}</p>
           ) : (
             <p className="alert alert-danger">No Coupon Applied!</p>
