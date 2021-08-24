@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, Tabs, Tooltip } from "antd";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { HeartOutlined, ShoppingCartOutlined } from "@ant-design/icons";
 import { Carousel } from "react-responsive-carousel";
 import StarRating from "react-star-ratings";
@@ -15,6 +15,9 @@ import { useDispatch } from "react-redux";
 import { ADD_TO_CART } from "../../actionTypes/cartActionTypes";
 import { useState } from "react";
 import { SET_VISIBLE } from "../../actionTypes/drawerActionTypes";
+import { addToWishList } from "../../services/userService";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 const SingleProduct = ({ product, onStarClick, star }) => {
   const { title, images, description, _id } = product;
@@ -23,6 +26,8 @@ const SingleProduct = ({ product, onStarClick, star }) => {
   const [tooltip, setTooltip] = useState("Click to Add");
 
   const dispatch = useDispatch();
+  const { user } = useSelector((state) => ({ ...state }));
+  const history = useHistory();
 
   const handleAddToCart = () => {
     //create cart array
@@ -44,6 +49,15 @@ const SingleProduct = ({ product, onStarClick, star }) => {
       //show items from cart in Side Drawer
       dispatch({ type: SET_VISIBLE, payload: true });
     }
+  };
+
+  const handleAddToWishlist = (e) => {
+    e.preventDefault();
+    addToWishList(product._id, user.token).then((res) => {
+      console.log(res);
+      toast.success("Added to wishlist!");
+      history.push("/user/wishlist");
+    });
   };
 
   return (
@@ -89,9 +103,9 @@ const SingleProduct = ({ product, onStarClick, star }) => {
               <ShoppingCartOutlined className="text-success" /> <br /> Add to
               Cart
             </a>,
-            <Link to="/">
+            <a onClick={handleAddToWishlist}>
               <HeartOutlined className="text-info" /> <br /> Add to Wishlist
-            </Link>,
+            </a>,
             <RatingModal>
               <StarRating
                 name={_id}

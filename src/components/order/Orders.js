@@ -62,6 +62,7 @@ const Orders = ({ handleStatusChange, orders }) => {
                   <option value="Dispatched">Dispatched</option>
                   <option value="Canceled">Canceled</option>
                   <option value="Completed">Completed</option>
+                  <option value="Cash On Delivery">Cash On Delivery</option>
                 </select>
               </div>
             </div>

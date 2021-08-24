@@ -1,6 +1,7 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
+import { COD } from "../actionTypes/CODActionTypes";
 import ProductCardInCheckout from "../components/cards/ProductCardInCheckout";
 import { userCart } from "../services/userService";
 
@@ -15,6 +16,18 @@ const Cart = ({ history }) => {
   };
 
   const saveOrderToDb = () => {
+    userCart(cart, user.token)
+      .then((res) => {
+        if (res.data.ok) {
+          history.push("/checkout");
+        }
+        console.log("res", res);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const saveCashOrderToDb = () => {
+    dispatch({ type: COD, payload: true });
     userCart(cart, user.token)
       .then((res) => {
         if (res.data.ok) {
@@ -76,13 +89,23 @@ const Cart = ({ history }) => {
           Total: <b>${getTotal()}</b>
           <hr />
           {user ? (
-            <button
-              onClick={saveOrderToDb}
-              disabled={!cart.length}
-              className="btn btn-sm btn-primary mt-2"
-            >
-              Proceed to Checkout
-            </button>
+            <>
+              <button
+                onClick={saveOrderToDb}
+                disabled={!cart.length}
+                className="btn btn-sm btn-primary mt-2"
+              >
+                Proceed to Checkout
+              </button>
+              <br />
+              <button
+                onClick={saveCashOrderToDb}
+                disabled={!cart.length}
+                className="btn btn-sm btn-warning mt-2"
+              >
+                Pay Cash on Delivery
+              </button>
+            </>
           ) : (
             <button className="btn btn-sm btn-warning mt-2">
               <Link
